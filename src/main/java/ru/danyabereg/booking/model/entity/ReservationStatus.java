@@ -1,2 +1,5 @@
-package ru.danyabereg.booking.model.entity;public enum ReservationStatus {
+package ru.danyabereg.booking.model.entity;
+
+public enum ReservationStatus {
+    SUCCESS, CANCELED
 }
