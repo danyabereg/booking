@@ -7,10 +7,11 @@ import ru.danyabereg.booking.model.entity.Reservation;
 
 @RequiredArgsConstructor
 @Component
-public class ReservationMapper implements Mapper<ReservationDto, Reservation>{
+public class ReservationMapper implements Mapper<ReservationDto, Reservation> {
 
     private final HotelMapper hotelMapper;
     private final LoyaltyMapper loyaltyMapper;
+
     @Override
     public Reservation mapToEntity(ReservationDto dto) {
         return Reservation.builder()

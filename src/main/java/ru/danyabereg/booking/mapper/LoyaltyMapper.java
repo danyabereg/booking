@@ -5,7 +5,7 @@ import ru.danyabereg.booking.model.dto.LoyaltyDto;
 import ru.danyabereg.booking.model.entity.Loyalty;
 
 @Component
-public class LoyaltyMapper implements Mapper<LoyaltyDto, Loyalty>{
+public class LoyaltyMapper implements Mapper<LoyaltyDto, Loyalty> {
     @Override
     public Loyalty mapToEntity(LoyaltyDto dto) {
         return Loyalty.builder()

@@ -8,6 +8,8 @@ import ru.danyabereg.booking.model.dto.RequestDto;
 import ru.danyabereg.booking.model.dto.ReservationDto;
 import ru.danyabereg.booking.service.ReservationService;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/reservations")
@@ -25,7 +27,12 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{reservationUid}")
-    public ResponseEntity<Object> deleteReservation(@RequestHeader("X-User-Name") String userName, @PathVariable Long reservationUid) {
-        return ResponseEntity.status(HttpStatus.OK).body(reservationUid);
+    public ResponseEntity<Object> deleteReservation(@RequestHeader("X-User-Name") String userName, @PathVariable UUID reservationUid) {
+        boolean result = reservationService.deleteReservation(userName, reservationUid);
+        if (result) {
+            return ResponseEntity.status(HttpStatus.OK).body(reservationUid + " deleted");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(reservationUid + " NOT FOUND");
+        }
     }
 }

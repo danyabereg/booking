@@ -5,7 +5,7 @@ import ru.danyabereg.booking.model.dto.HotelDto;
 import ru.danyabereg.booking.model.entity.Hotel;
 
 @Component
-public class HotelMapper implements Mapper<HotelDto, Hotel>{
+public class HotelMapper implements Mapper<HotelDto, Hotel> {
     @Override
     public Hotel mapToEntity(HotelDto dto) {
         return Hotel.builder()

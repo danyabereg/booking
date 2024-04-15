@@ -22,11 +22,11 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "username", nullable = false)
     private Loyalty loyalty;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "hotel_id", nullable = false)
     private Hotel hotel;
 
@@ -42,7 +42,4 @@ public class Reservation {
     @Column(name = "date_to", nullable = false)
     private LocalDate dateTo;
 
-    public void cancel() {
-        this.status = ReservationStatus.CANCELED;
-    }
 }

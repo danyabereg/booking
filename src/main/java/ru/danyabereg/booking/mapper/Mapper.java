@@ -1,6 +1,6 @@
 package ru.danyabereg.booking.mapper;
 
-public interface Mapper <F, T>{
+public interface Mapper<F, T> {
 
     T mapToEntity(F dto);
 
