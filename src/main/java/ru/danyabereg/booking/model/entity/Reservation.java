@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -19,13 +20,13 @@ public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "username", nullable = false)
-    private Loyalty user;
+    private Loyalty loyalty;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "hotel_id", nullable = false)
     private Hotel hotel;
 
@@ -34,10 +35,14 @@ public class Reservation {
     private ReservationStatus status;
 
     @DateTimeFormat(pattern = "yyyy/MM/dd")
-    @Column(name = "date_from")
+    @Column(name = "date_from", nullable = false)
     private LocalDate dateFrom;
 
     @DateTimeFormat(pattern = "yyyy/MM/dd")
-    @Column(name = "date_to")
+    @Column(name = "date_to", nullable = false)
     private LocalDate dateTo;
+
+    public void cancel() {
+        this.status = ReservationStatus.CANCELED;
+    }
 }

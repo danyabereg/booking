@@ -1,24 +1,26 @@
 package ru.danyabereg.booking.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
+//@ToString(exclude = "reservations")
+//@EqualsAndHashCode(exclude = "reservations")
 @Table(name = "hotels")
 public class Hotel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @Column(name = "hotel_name", nullable = false, unique = true)
     private String name;
@@ -28,4 +30,12 @@ public class Hotel {
 
     @Column(name = "night_price", nullable = false)
     private BigDecimal price;
+
+//    @Builder.Default
+//    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    private List<Reservation> reservations = new ArrayList<>();
+
+//    public void addReservation(Reservation reservation) {
+//        this.reservations.add(reservation);
+//    }
 }
