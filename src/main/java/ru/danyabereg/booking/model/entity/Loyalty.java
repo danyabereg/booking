@@ -33,12 +33,24 @@ public class Loyalty {
 
     public Loyalty incrementQuantity() {
         this.bookingQuantity += 1;
+        if (bookingQuantity >= 20) {
+            status = LoyaltyStatus.GOLD;
+        }
+        else if (bookingQuantity >= 10) {
+            status = LoyaltyStatus.SILVER;
+        }
         return this;
     }
 
     public Loyalty decrementQuantity() {
         if (this.bookingQuantity != 0) {
             this.bookingQuantity -= 1;
+            if (bookingQuantity < 10) {
+                status = LoyaltyStatus.BRONZE;
+            }
+            else if (bookingQuantity < 20) {
+                status = LoyaltyStatus.SILVER;
+            }
         }
         return this;
     }
