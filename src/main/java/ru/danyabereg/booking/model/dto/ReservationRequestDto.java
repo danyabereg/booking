@@ -10,7 +10,7 @@ import java.util.UUID;
 @Value
 @AllArgsConstructor
 @Builder
-public class RequestDto {
+public class ReservationRequestDto {
     UUID hotelUid;
     LocalDate startDate;
     LocalDate endDate;

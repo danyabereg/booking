@@ -22,7 +22,7 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.REFRESH)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "username", nullable = false)
     private Loyalty loyalty;
 

@@ -13,14 +13,14 @@ import ru.danyabereg.booking.model.entity.Loyalty;
 import ru.danyabereg.booking.model.entity.LoyaltyStatus;
 import ru.danyabereg.booking.model.repository.LoyaltyRepository;
 
-import java.net.ConnectException;
+import java.sql.SQLException;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Retryable(
-        retryFor = { ConnectException.class },
-        maxAttempts = 4,
-        backoff = @Backoff(delay = 800)
+        retryFor = {SQLException.class},
+        maxAttemptsExpression = "${db.connection.retry.max_attempts}",
+        backoff = @Backoff(delayExpression = "{db.connection.retry.backoff_ms}")
 )
 @Service
 public class LoyaltyService {
@@ -39,20 +39,20 @@ public class LoyaltyService {
         return loyaltyMapper.mapToDto(loyalty);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Optional<LoyaltyDto> findByUserName(String userName) {
         return loyaltyRepository.findByUserName(userName)
                 .map(loyaltyMapper::mapToDto);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Optional<LoyaltyDto> findByUserCreate(String userName) {
         return loyaltyRepository.findByUserName(userName)
                 .map(Loyalty::incrementQuantity)
                 .map(loyaltyMapper::mapToDto);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void findByUserDelete(String userName) {
         loyaltyRepository.findByUserName(userName)
                 .map(Loyalty::decrementQuantity)

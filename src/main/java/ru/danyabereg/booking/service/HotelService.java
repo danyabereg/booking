@@ -11,7 +11,7 @@ import ru.danyabereg.booking.mapper.HotelMapper;
 import ru.danyabereg.booking.model.dto.HotelDto;
 import ru.danyabereg.booking.model.repository.HotelRepository;
 
-import java.net.ConnectException;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,9 +19,9 @@ import java.util.UUID;
 @Service
 @Transactional
 @Retryable(
-        retryFor = { ConnectException.class },
-        maxAttempts = 4,
-        backoff = @Backoff(delay = 800)
+        retryFor = {SQLException.class},
+        maxAttemptsExpression = "${db.connection.retry.max_attempts}",
+        backoff = @Backoff(delayExpression = "{db.connection.retry.backoff_ms}")
 )
 public class HotelService {
     private final HotelRepository hotelRepository;
