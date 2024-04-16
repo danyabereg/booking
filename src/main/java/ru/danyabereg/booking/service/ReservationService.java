@@ -19,6 +19,7 @@ import ru.danyabereg.booking.model.entity.ReservationStatus;
 import ru.danyabereg.booking.model.repository.ReservationRepository;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,7 +53,7 @@ public class ReservationService {
         LoyaltyDto loyaltyDto = optionalLoyaltyDto.orElseGet(() -> loyaltyService.createUser(userName));
         Reservation reservation = buildReservation(reservationRequestDto, loyaltyDto, hotelDto);
         reservation = reservationRepository.saveAndFlush(reservation);
-        return buildReservationResponse(reservation, hotelDto);
+        return buildReservationResponse(reservation, hotelDto, loyaltyDto);
     }
 
     @Retryable(
@@ -84,12 +85,26 @@ public class ReservationService {
                 .build();
     }
 
-    private ReservationResponseDto buildReservationResponse(Reservation reservation, HotelDto hotelDto) {
+    private ReservationResponseDto buildReservationResponse(Reservation reservation, HotelDto hotelDto, LoyaltyDto loyaltyDto) {
         int duration = reservation.getDateFrom().until(reservation.getDateTo()).getDays();
         return ReservationResponseDto.builder()
                 .reservationDto(reservationMapper.mapToDto(reservation))
                 .duration(duration)
-                .price(hotelDto.getPrice().multiply(BigDecimal.valueOf(duration)))
+                .price(getPrice(hotelDto, duration, loyaltyDto))
                 .build();
+    }
+
+    private BigDecimal getPrice(HotelDto hotelDto, int duration, LoyaltyDto loyaltyDto) {
+        return switch (loyaltyDto.getStatus()) {
+            case GOLD -> hotelDto.getPrice()
+                        .multiply(BigDecimal.valueOf(duration))
+                        .multiply(BigDecimal.valueOf(0.9)).setScale(2, RoundingMode.UP);
+            case SILVER -> hotelDto.getPrice()
+                        .multiply(BigDecimal.valueOf(duration))
+                        .multiply(BigDecimal.valueOf(0.93)).setScale(2, RoundingMode.UP);
+            case BRONZE -> hotelDto.getPrice()
+                    .multiply(BigDecimal.valueOf(duration))
+                    .multiply(BigDecimal.valueOf(0.95)).setScale(2, RoundingMode.UP);
+        };
     }
 }
