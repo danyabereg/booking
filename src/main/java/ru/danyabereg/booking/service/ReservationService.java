@@ -56,11 +56,6 @@ public class ReservationService {
         return buildReservationResponse(reservation, hotelDto, loyaltyDto);
     }
 
-    @Retryable(
-            retryFor = {SQLException.class},
-            maxAttemptsExpression = "${db.connection.retry.max_attempts}",
-            backoff = @Backoff(delayExpression = "{db.connection.retry.backoff_ms}")
-    )
     public boolean deleteReservation(String userName, UUID id) {
         try {
             Optional<Reservation> reservation = reservationRepository.findById(id);

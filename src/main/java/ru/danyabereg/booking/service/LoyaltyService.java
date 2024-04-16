@@ -23,13 +23,13 @@ import java.util.Optional;
         backoff = @Backoff(delayExpression = "{db.connection.retry.backoff_ms}")
 )
 @Service
+@Transactional
 public class LoyaltyService {
     private final LoyaltyMapper loyaltyMapper;
     private final LoyaltyRepository loyaltyRepository;
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    @Transactional
     public LoyaltyDto createUser(String userName) {
         Loyalty loyalty = loyaltyRepository.save(Loyalty.builder()
                 .userName(userName)
@@ -39,20 +39,17 @@ public class LoyaltyService {
         return loyaltyMapper.mapToDto(loyalty);
     }
 
-    @Transactional
     public Optional<LoyaltyDto> findByUserName(String userName) {
         return loyaltyRepository.findByUserName(userName)
                 .map(loyaltyMapper::mapToDto);
     }
 
-    @Transactional
     public Optional<LoyaltyDto> findByUserCreate(String userName) {
         return loyaltyRepository.findByUserName(userName)
                 .map(Loyalty::incrementQuantity)
                 .map(loyaltyMapper::mapToDto);
     }
 
-    @Transactional
     public void findByUserDelete(String userName) {
         loyaltyRepository.findByUserName(userName)
                 .map(Loyalty::decrementQuantity)
