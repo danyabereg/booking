@@ -21,6 +21,9 @@ public class ReservationMapper implements Mapper<ReservationDto, Reservation> {
                 .status(dto.getStatus())
                 .dateFrom(dto.getDateFrom())
                 .dateTo(dto.getDateTo())
+                .userStatus(dto.getUserStatus())
+                .price(dto.getPrice())
+                .lastUpdate(dto.getLastUpdate())
                 .build();
     }
 
@@ -33,6 +36,9 @@ public class ReservationMapper implements Mapper<ReservationDto, Reservation> {
                 .status(entity.getStatus())
                 .dateFrom(entity.getDateFrom())
                 .dateTo(entity.getDateTo())
+                .userStatus(entity.getUserStatus())
+                .price(entity.getPrice())
+                .lastUpdate(entity.getLastUpdate())
                 .build();
     }
 }

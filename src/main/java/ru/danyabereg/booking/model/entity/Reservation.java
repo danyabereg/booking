@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -41,5 +42,16 @@ public class Reservation {
     @DateTimeFormat(pattern = "yyyy/MM/dd")
     @Column(name = "date_to", nullable = false)
     private LocalDate dateTo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_status", nullable = false)
+    private DiscountStatus userStatus;
+
+    @Column(name = "price", nullable = false)
+    private BigDecimal price;
+
+    @DateTimeFormat(pattern = "yyyy/MM/dd")
+    @Column(name = "last_update", nullable = false)
+    private LocalDate lastUpdate;
 
 }

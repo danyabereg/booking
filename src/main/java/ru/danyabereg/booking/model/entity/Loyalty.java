@@ -23,9 +23,9 @@ public class Loyalty {
     @Column(name = "booking_quantity", nullable = false)
     private Integer bookingQuantity;
 
-    @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private LoyaltyStatus status;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "status", nullable = false)
+    private StatusDiscount status;
 
 //    @Builder.Default
 //    @OneToMany(mappedBy = "loyalty", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -33,11 +33,10 @@ public class Loyalty {
 
     public Loyalty incrementQuantity() {
         this.bookingQuantity += 1;
-        if (bookingQuantity >= 20) {
-            status = LoyaltyStatus.GOLD;
-        }
-        else if (bookingQuantity >= 10) {
-            status = LoyaltyStatus.SILVER;
+        if (bookingQuantity == 10) {
+            status.setStatus(DiscountStatus.SILVER);
+        } else if (bookingQuantity == 20) {
+            status.setStatus(DiscountStatus.GOLD);
         }
         return this;
     }
@@ -45,11 +44,10 @@ public class Loyalty {
     public Loyalty decrementQuantity() {
         if (this.bookingQuantity != 0) {
             this.bookingQuantity -= 1;
-            if (bookingQuantity < 10) {
-                status = LoyaltyStatus.BRONZE;
-            }
-            else if (bookingQuantity < 20) {
-                status = LoyaltyStatus.SILVER;
+            if (bookingQuantity == 9) {
+                status.setStatus(DiscountStatus.BRONZE);
+            } else if (bookingQuantity == 19) {
+                status.setStatus(DiscountStatus.SILVER);
             }
         }
         return this;

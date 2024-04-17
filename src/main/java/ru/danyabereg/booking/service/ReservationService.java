@@ -12,8 +12,8 @@ import ru.danyabereg.booking.mapper.LoyaltyMapper;
 import ru.danyabereg.booking.mapper.ReservationMapper;
 import ru.danyabereg.booking.model.dto.HotelDto;
 import ru.danyabereg.booking.model.dto.LoyaltyDto;
+import ru.danyabereg.booking.model.dto.ReservationDto;
 import ru.danyabereg.booking.model.dto.ReservationRequestDto;
-import ru.danyabereg.booking.model.dto.ReservationResponseDto;
 import ru.danyabereg.booking.model.entity.Reservation;
 import ru.danyabereg.booking.model.entity.ReservationStatus;
 import ru.danyabereg.booking.model.repository.ReservationRepository;
@@ -21,6 +21,7 @@ import ru.danyabereg.booking.model.repository.ReservationRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,7 +43,7 @@ public class ReservationService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    public ReservationResponseDto createReservation(ReservationRequestDto reservationRequestDto, String userName) {
+    public ReservationDto createReservation(ReservationRequestDto reservationRequestDto, String userName) {
         Optional<HotelDto> optionalHotelDto = hotelService.findById(reservationRequestDto.getHotelUid());
         if (optionalHotelDto.isEmpty()) {
             LOGGER.info("Hotel not found");
@@ -52,8 +53,8 @@ public class ReservationService {
         Optional<LoyaltyDto> optionalLoyaltyDto = loyaltyService.findByUserCreate(userName);
         LoyaltyDto loyaltyDto = optionalLoyaltyDto.orElseGet(() -> loyaltyService.createUser(userName));
         Reservation reservation = buildReservation(reservationRequestDto, loyaltyDto, hotelDto);
-        reservation = reservationRepository.saveAndFlush(reservation);
-        return buildReservationResponse(reservation, hotelDto, loyaltyDto);
+        reservation = reservationRepository.save(reservation);
+        return reservationMapper.mapToDto(reservation);
     }
 
     public boolean deleteReservation(String userName, UUID id) {
@@ -61,6 +62,7 @@ public class ReservationService {
             Optional<Reservation> reservation = reservationRepository.findById(id);
             if (reservation.isPresent() && reservation.get().getStatus() == ReservationStatus.SUCCESS) {
                 reservation.get().setStatus(ReservationStatus.CANCELED);
+                reservation.get().setLastUpdate(LocalDate.now());
                 loyaltyService.findByUserDelete(userName);
                 return true;
             }
@@ -77,29 +79,21 @@ public class ReservationService {
                 .status(ReservationStatus.SUCCESS)
                 .dateFrom(reservationRequestDto.getStartDate())
                 .dateTo(reservationRequestDto.getEndDate())
-                .build();
-    }
-
-    private ReservationResponseDto buildReservationResponse(Reservation reservation, HotelDto hotelDto, LoyaltyDto loyaltyDto) {
-        int duration = reservation.getDateFrom().until(reservation.getDateTo()).getDays();
-        return ReservationResponseDto.builder()
-                .reservationDto(reservationMapper.mapToDto(reservation))
-                .duration(duration)
-                .price(getPrice(hotelDto, duration, loyaltyDto))
+                .userStatus(loyaltyDto.getStatus().getDiscountStatus())
+                .price(getPrice(hotelDto, getDuration(reservationRequestDto), loyaltyDto))
+                .lastUpdate(LocalDate.now())
                 .build();
     }
 
     private BigDecimal getPrice(HotelDto hotelDto, int duration, LoyaltyDto loyaltyDto) {
-        return switch (loyaltyDto.getStatus()) {
-            case GOLD -> hotelDto.getPrice()
-                        .multiply(BigDecimal.valueOf(duration))
-                        .multiply(BigDecimal.valueOf(0.9)).setScale(2, RoundingMode.UP);
-            case SILVER -> hotelDto.getPrice()
-                        .multiply(BigDecimal.valueOf(duration))
-                        .multiply(BigDecimal.valueOf(0.93)).setScale(2, RoundingMode.UP);
-            case BRONZE -> hotelDto.getPrice()
-                    .multiply(BigDecimal.valueOf(duration))
-                    .multiply(BigDecimal.valueOf(0.95)).setScale(2, RoundingMode.UP);
-        };
+        return hotelDto.getPrice()
+                .multiply(BigDecimal.valueOf(duration))
+                .multiply(BigDecimal.valueOf(1.0 - loyaltyDto.getStatus().getDiscount().doubleValue() / 100)).setScale(2, RoundingMode.UP);
+    }
+
+    private Integer getDuration(ReservationRequestDto reservationRequestDto) {
+        return reservationRequestDto.getStartDate()
+                .until(reservationRequestDto.getEndDate())
+                .getDays();
     }
 }

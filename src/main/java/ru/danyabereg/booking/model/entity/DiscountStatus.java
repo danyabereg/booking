@@ -1,5 +1,5 @@
 package ru.danyabereg.booking.model.entity;
 
-public enum LoyaltyStatus {
+public enum DiscountStatus {
     BRONZE, SILVER, GOLD
 }

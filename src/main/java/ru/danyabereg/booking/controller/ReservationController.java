@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.danyabereg.booking.model.dto.ReservationDto;
 import ru.danyabereg.booking.model.dto.ReservationRequestDto;
-import ru.danyabereg.booking.model.dto.ReservationResponseDto;
 import ru.danyabereg.booking.service.ReservationService;
 
 import java.util.UUID;
@@ -19,8 +19,8 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<Object> doReservation(@RequestBody ReservationRequestDto reservationRequestDto, @RequestHeader("X-User-Name") String userName) {
         try {
-            ReservationResponseDto reservationResponseDto = reservationService.createReservation(reservationRequestDto, userName);
-            return ResponseEntity.status(HttpStatus.OK).body(reservationResponseDto);
+            ReservationDto reservationDto = reservationService.createReservation(reservationRequestDto, userName);
+            return ResponseEntity.status(HttpStatus.OK).body(reservationDto);
         } catch (Error e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(reservationRequestDto);
         }
