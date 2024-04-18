@@ -50,8 +50,12 @@ public class ReservationService {
             return null;
         }
         HotelDto hotelDto = optionalHotelDto.get();
-        Optional<LoyaltyDto> optionalLoyaltyDto = loyaltyService.findByUserCreate(userName);
-        LoyaltyDto loyaltyDto = optionalLoyaltyDto.orElseGet(() -> loyaltyService.createUser(userName));
+        LoyaltyDto loyaltyDto= null;
+        try {
+            loyaltyDto = loyaltyService.findByUserCreate(userName);
+        } catch (Exception e) {
+            loyaltyDto = loyaltyService.createUser(userName);
+        }
         Reservation reservation = buildReservation(reservationRequestDto, loyaltyDto, hotelDto);
         reservation = reservationRepository.save(reservation);
         return reservationMapper.mapToDto(reservation);

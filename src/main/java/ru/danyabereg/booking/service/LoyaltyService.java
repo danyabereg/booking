@@ -42,20 +42,33 @@ public class LoyaltyService {
         return loyaltyMapper.mapToDto(loyalty);
     }
 
-    public Optional<LoyaltyDto> findByUserName(String userName) {
+    public LoyaltyDto findByUserName(String userName) {
         return loyaltyRepository.findByUserName(userName)
-                .map(loyaltyMapper::mapToDto);
+                .map(loyaltyMapper::mapToDto).orElseThrow();
     }
 
-    public Optional<LoyaltyDto> findByUserCreate(String userName) {
-        return loyaltyRepository.findByUserName(userName)
-                .map(Loyalty::incrementQuantity)
-                .map(loyaltyMapper::mapToDto);
+    public LoyaltyDto findByUserCreate(String userName) {
+        Loyalty loyalty = loyaltyRepository.findByUserName(userName)
+                .map(Loyalty::incrementQuantity).orElseThrow();
+        if (loyalty.getBookingQuantity() == 10) {
+            loyalty.setStatus(discountMapper.mapToEntity(
+                    discountService.findByStatus(DiscountStatus.SILVER)));
+        } else if (loyalty.getBookingQuantity() == 20) {
+            loyalty.setStatus(discountMapper.mapToEntity(
+                    discountService.findByStatus(DiscountStatus.GOLD)));
+        }
+        return loyaltyMapper.mapToDto(loyalty);
     }
 
     public void findByUserDelete(String userName) {
-        loyaltyRepository.findByUserName(userName)
-                .map(Loyalty::decrementQuantity)
-                .map(loyaltyMapper::mapToDto);
+        Loyalty loyalty = loyaltyRepository.findByUserName(userName)
+                .map(Loyalty::decrementQuantity).orElseThrow();
+        if (loyalty.getBookingQuantity() == 19) {
+            loyalty.setStatus(discountMapper.mapToEntity(
+                    discountService.findByStatus(DiscountStatus.SILVER)));
+        } else if (loyalty.getBookingQuantity() == 9) {
+            loyalty.setStatus(discountMapper.mapToEntity(
+                    discountService.findByStatus(DiscountStatus.BRONZE)));
+        }
     }
 }
