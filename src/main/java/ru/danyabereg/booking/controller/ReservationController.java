@@ -18,10 +18,10 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Object> doReservation(@RequestBody ReservationRequestDto reservationRequestDto, @RequestHeader("X-User-Name") String userName) {
-        try {
-            ReservationDto reservationDto = reservationService.createReservation(reservationRequestDto, userName);
+        ReservationDto reservationDto = reservationService.createReservation(reservationRequestDto, userName);
+        if (reservationDto != null) {
             return ResponseEntity.status(HttpStatus.OK).body(reservationDto);
-        } catch (Error e) {
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(reservationRequestDto);
         }
     }
