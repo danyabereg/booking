@@ -17,6 +17,11 @@ import ru.danyabereg.booking.model.repository.LoyaltyRepository;
 import ru.danyabereg.booking.service.LoyaltyService;
 import ru.danyabereg.booking.service.StatusDiscountService;
 
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
+
 @SpringBootTest
 public class FindByUserCreateTest {
     @Spy
@@ -30,26 +35,73 @@ public class FindByUserCreateTest {
     @InjectMocks
     private LoyaltyService loyaltyService;
 
-    private static final StatusDiscountDto STATUS_DISCOUNT_DTO = new StatusDiscountDto(
+    private static final StatusDiscountDto STATUS_DISCOUNT_BRONZE_DTO = new StatusDiscountDto(
             DiscountStatus.BRONZE, 5);
-    private static final LoyaltyDto LOYALTY_DTO = new LoyaltyDto(
-            "test", 1, STATUS_DISCOUNT_DTO);
-    private static final StatusDiscount STATUS_DISCOUNT = new StatusDiscount(
+    private static final StatusDiscountDto STATUS_DISCOUNT_SILVER_DTO = new StatusDiscountDto(
+            DiscountStatus.SILVER, 7);
+    private static final StatusDiscountDto STATUS_DISCOUNT_GOLD_DTO = new StatusDiscountDto(
+            DiscountStatus.GOLD, 10);
+    private static final StatusDiscount STATUS_DISCOUNT_BRONZE = new StatusDiscount(
             DiscountStatus.BRONZE, 5);
-    private static final Loyalty LOYALTY = new Loyalty(
-            "test", 1, STATUS_DISCOUNT);
+    private static final StatusDiscount STATUS_DISCOUNT_SILVER = new StatusDiscount(
+            DiscountStatus.SILVER, 7);
+    private static final StatusDiscount STATUS_DISCOUNT_GOLD = new StatusDiscount(
+            DiscountStatus.GOLD, 10);
 
     @Test
-    void findByUserCreateTest() {
-        Mockito.doReturn(LOYALTY_DTO)
-                .when(loyaltyMapper).mapToDto(LOYALTY);
-        Mockito.doReturn(STATUS_DISCOUNT_DTO)
-                .when(statusDiscountService).findByStatus(STATUS_DISCOUNT.getStatus());
-        Mockito.doReturn(LOYALTY)
-                .when(loyaltyRepository).findByUserName(LOYALTY.getUserName());
+    void findByUserCreateDefaultTest() {
+        var expectedResult = new LoyaltyDto("test", 2, STATUS_DISCOUNT_BRONZE_DTO);
+        var loyalty = new Loyalty("test", 2, STATUS_DISCOUNT_BRONZE);
+        Mockito.doReturn(expectedResult)
+                .when(loyaltyMapper).mapToDto(loyalty);
+        Mockito.doReturn(Optional.of(new Loyalty(
+                        "test", 1, STATUS_DISCOUNT_BRONZE)))
+                .when(loyaltyRepository).findByUserName("test");
 
-        LoyaltyDto actualResult = loyaltyService.findByUserCreate(LOYALTY.getUserName());
+        LoyaltyDto actualResult = loyaltyService.findByUserCreate("test");
 
+        verify(loyaltyRepository).findByUserName("test");
+        verify(loyaltyMapper).mapToDto(loyalty);
+        assertEquals(actualResult, expectedResult);
+    }
 
+    @Test
+    void findByUserCreateToSilverTest() {
+        var expectedResult = new LoyaltyDto("test", 10, STATUS_DISCOUNT_SILVER_DTO);
+        var loyalty = new Loyalty("test", 10, STATUS_DISCOUNT_SILVER);
+        Mockito.doReturn(expectedResult)
+                .when(loyaltyMapper).mapToDto(loyalty);
+        Mockito.doReturn(STATUS_DISCOUNT_SILVER_DTO)
+                .when(statusDiscountService).findByStatus(STATUS_DISCOUNT_SILVER.getStatus());
+        Mockito.doReturn(Optional.of(new Loyalty(
+                        "test", 9, STATUS_DISCOUNT_BRONZE)))
+                .when(loyaltyRepository).findByUserName("test");
+
+        LoyaltyDto actualResult = loyaltyService.findByUserCreate("test");
+
+        verify(statusDiscountService).findByStatus(DiscountStatus.SILVER);
+        verify(statusDiscountMapper).mapToEntity(STATUS_DISCOUNT_SILVER_DTO);
+        verify(loyaltyMapper).mapToDto(loyalty);
+        assertEquals(actualResult, expectedResult);
+    }
+
+    @Test
+    void findByUserCreateToGoldTest() {
+        var expectedResult = new LoyaltyDto("test", 20, STATUS_DISCOUNT_GOLD_DTO);
+        var loyalty = new Loyalty("test", 20, STATUS_DISCOUNT_GOLD);
+        Mockito.doReturn(expectedResult)
+                .when(loyaltyMapper).mapToDto(loyalty);
+        Mockito.doReturn(STATUS_DISCOUNT_GOLD_DTO)
+                .when(statusDiscountService).findByStatus(STATUS_DISCOUNT_GOLD.getStatus());
+        Mockito.doReturn(Optional.of(new Loyalty(
+                        "test", 19, STATUS_DISCOUNT_SILVER)))
+                .when(loyaltyRepository).findByUserName("test");
+
+        LoyaltyDto actualResult = loyaltyService.findByUserCreate("test");
+
+        verify(statusDiscountService).findByStatus(DiscountStatus.GOLD);
+        verify(statusDiscountMapper).mapToEntity(STATUS_DISCOUNT_GOLD_DTO);
+        verify(loyaltyMapper).mapToDto(loyalty);
+        assertEquals(actualResult, expectedResult);
     }
 }

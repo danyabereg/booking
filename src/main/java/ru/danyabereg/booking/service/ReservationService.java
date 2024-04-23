@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -53,7 +54,7 @@ public class ReservationService {
         LoyaltyDto loyaltyDto= null;
         try {
             loyaltyDto = loyaltyService.findByUserCreate(userName);
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
             loyaltyDto = loyaltyService.createUser(userName);
         }
         Reservation reservation = buildReservation(reservationRequestDto, loyaltyDto, hotelDto);
