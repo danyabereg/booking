@@ -1,7 +1,7 @@
-INSERT INTO status_discount(status, discount_percent)
-VALUES ('BRONZE', 5),
-       ('SILVER', 7),
-       ('GOLD', 10);
+INSERT INTO status_discount
+VALUES ('BRONZE', 5, 0, 9),
+       ('SILVER', 7, 10, 19),
+       ('GOLD', 10, 20, null);
 
 INSERT INTO hotels(hotel_name, address, night_price)
 VALUES ('Hilton', 'Zhukova 10', 3500),

@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-//@ToString(exclude = "reservations")
-//@EqualsAndHashCode(exclude = "reservations")
 @Entity
 @Table(name = "loyalty")
 public class Loyalty {
@@ -26,10 +24,6 @@ public class Loyalty {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "status", nullable = false)
     private StatusDiscount status;
-
-//    @Builder.Default
-//    @OneToMany(mappedBy = "loyalty", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Reservation> reservations = new ArrayList<>();
 
     public Loyalty incrementQuantity() {
         this.bookingQuantity += 1;

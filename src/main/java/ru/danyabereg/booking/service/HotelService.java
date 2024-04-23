@@ -6,20 +6,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.danyabereg.booking.mapper.HotelMapper;
 import ru.danyabereg.booking.model.dto.HotelDto;
 import ru.danyabereg.booking.model.repository.HotelRepository;
 
-import java.sql.SQLException;
+import java.net.ConnectException;
 import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 @Retryable(
-        retryFor = {SQLException.class},
+        retryFor = {ConnectException.class},
         maxAttemptsExpression = "${db.connection.retry.max_attempts}",
         backoff = @Backoff(delayExpression = "{db.connection.retry.backoff_ms}")
 )

@@ -43,9 +43,8 @@ public class Reservation {
     @Column(name = "date_to", nullable = false)
     private LocalDate dateTo;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "user_status", nullable = false)
-    private DiscountStatus userStatus;
+    private String userStatus;
 
     @Column(name = "price", nullable = false)
     private BigDecimal price;

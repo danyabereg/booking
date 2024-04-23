@@ -20,7 +20,7 @@ import ru.danyabereg.booking.model.repository.ReservationRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.SQLException;
+import java.net.ConnectException;
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -29,7 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 @Retryable(
-        retryFor = {SQLException.class},
+        retryFor = {ConnectException.class},
         maxAttemptsExpression = "${db.connection.retry.max_attempts}",
         backoff = @Backoff(delayExpression = "{db.connection.retry.backoff_ms}")
 )
@@ -51,14 +51,14 @@ public class ReservationService {
             return null;
         }
         HotelDto hotelDto = optionalHotelDto.get();
-        LoyaltyDto loyaltyDto= null;
+        LoyaltyDto loyaltyDto = null;
         try {
             loyaltyDto = loyaltyService.findByUserCreate(userName);
         } catch (NoSuchElementException e) {
             loyaltyDto = loyaltyService.createUser(userName);
         }
         Reservation reservation = buildReservation(reservationRequestDto, loyaltyDto, hotelDto);
-        reservation = reservationRepository.save(reservation);
+        reservation = reservationRepository.saveAndFlush(reservation);
         return reservationMapper.mapToDto(reservation);
     }
 

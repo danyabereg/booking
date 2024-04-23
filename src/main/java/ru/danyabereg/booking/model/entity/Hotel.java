@@ -14,8 +14,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
-//@ToString(exclude = "reservations")
-//@EqualsAndHashCode(exclude = "reservations")
 @Table(name = "hotels")
 public class Hotel {
 
@@ -32,11 +30,4 @@ public class Hotel {
     @Column(name = "night_price", nullable = false)
     private BigDecimal price;
 
-//    @Builder.Default
-//    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Reservation> reservations = new ArrayList<>();
-
-//    public void addReservation(Reservation reservation) {
-//        this.reservations.add(reservation);
-//    }
 }

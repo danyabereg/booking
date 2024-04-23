@@ -6,25 +6,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.danyabereg.booking.mapper.LoyaltyMapper;
 import ru.danyabereg.booking.mapper.StatusDiscountMapper;
 import ru.danyabereg.booking.model.dto.LoyaltyDto;
-import ru.danyabereg.booking.model.entity.DiscountStatus;
 import ru.danyabereg.booking.model.entity.Loyalty;
 import ru.danyabereg.booking.model.repository.LoyaltyRepository;
 
-import java.sql.SQLException;
-import java.util.Optional;
+import java.net.ConnectException;
 
 @RequiredArgsConstructor
 @Retryable(
-        retryFor = {SQLException.class},
+        retryFor = {ConnectException.class},
         maxAttemptsExpression = "${db.connection.retry.max_attempts}",
         backoff = @Backoff(delayExpression = "{db.connection.retry.backoff_ms}")
 )
 @Service
-@Transactional
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class LoyaltyService {
     private final LoyaltyMapper loyaltyMapper;
     private final LoyaltyRepository loyaltyRepository;
@@ -37,7 +36,9 @@ public class LoyaltyService {
         Loyalty loyalty = loyaltyRepository.saveAndFlush(Loyalty.builder()
                 .userName(userName)
                 .bookingQuantity(1)
-                .status(discountMapper.mapToEntity(discountService.findByStatus(DiscountStatus.BRONZE)))
+                .status(discountMapper
+                        .mapToEntity(discountService
+                                .findMinStatus()))
                 .build());
         return loyaltyMapper.mapToDto(loyalty);
     }
@@ -50,12 +51,10 @@ public class LoyaltyService {
     public LoyaltyDto findByUserCreate(String userName) {
         Loyalty loyalty = loyaltyRepository.findByUserName(userName)
                 .map(Loyalty::incrementQuantity).orElseThrow();
-        if (loyalty.getBookingQuantity() == 10) {
+        if (loyalty.getStatus().getMaxQuantity() != null &&
+                loyalty.getBookingQuantity() > loyalty.getStatus().getMaxQuantity()) {
             loyalty.setStatus(discountMapper.mapToEntity(
-                    discountService.findByStatus(DiscountStatus.SILVER)));
-        } else if (loyalty.getBookingQuantity() == 20) {
-            loyalty.setStatus(discountMapper.mapToEntity(
-                    discountService.findByStatus(DiscountStatus.GOLD)));
+                    discountService.findNextStatus(loyalty.getStatus().getDiscount())));
         }
         return loyaltyMapper.mapToDto(loyalty);
     }
@@ -63,12 +62,10 @@ public class LoyaltyService {
     public void findByUserDelete(String userName) {
         Loyalty loyalty = loyaltyRepository.findByUserName(userName)
                 .map(Loyalty::decrementQuantity).orElseThrow();
-        if (loyalty.getBookingQuantity() == 19) {
+        if (loyalty.getStatus().getMinQuantity() != 0 &&
+                loyalty.getBookingQuantity() < loyalty.getStatus().getMinQuantity()) {
             loyalty.setStatus(discountMapper.mapToEntity(
-                    discountService.findByStatus(DiscountStatus.SILVER)));
-        } else if (loyalty.getBookingQuantity() == 9) {
-            loyalty.setStatus(discountMapper.mapToEntity(
-                    discountService.findByStatus(DiscountStatus.BRONZE)));
+                    discountService.findPreviousStatus(loyalty.getStatus().getDiscount())));
         }
     }
 }

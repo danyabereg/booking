@@ -15,9 +15,15 @@ import lombok.NoArgsConstructor;
 public class StatusDiscount {
 
     @Id
-    @Enumerated(EnumType.STRING)
-    private DiscountStatus status;
+    @Column(name = "status", nullable = false, unique = true)
+    private String discountStatus;
 
     @Column(name = "discount_percent", nullable = false)
     private Integer discount;
+
+    @Column(name = "min_quantity", nullable = false, unique = true)
+    private Integer minQuantity;
+
+    @Column(name = "max_quantity", unique = true)
+    private Integer maxQuantity;
 }

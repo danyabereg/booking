@@ -1,4 +1,4 @@
-CREATE EXTENSION pgcrypto;
+-- CREATE EXTENSION pgcrypto;
 
 CREATE TABLE IF NOT EXISTS hotels
 (
@@ -11,7 +11,9 @@ CREATE TABLE IF NOT EXISTS hotels
 CREATE TABLE IF NOT EXISTS status_discount
 (
     status           VARCHAR(8) PRIMARY KEY,
-    discount_percent INT               NOT NULL
+    discount_percent INT               NOT NULL,
+    min_quantity INT NOT NULL UNIQUE,
+    max_quantity INT UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS loyalty

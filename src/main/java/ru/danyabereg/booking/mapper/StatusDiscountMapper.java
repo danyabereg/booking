@@ -9,16 +9,20 @@ public class StatusDiscountMapper implements Mapper<StatusDiscountDto, StatusDis
     @Override
     public StatusDiscount mapToEntity(StatusDiscountDto dto) {
         return StatusDiscount.builder()
-                .status(dto.getDiscountStatus())
+                .discountStatus(dto.getDiscountStatus())
                 .discount(dto.getDiscount())
+                .minQuantity(dto.getMinQuantity())
+                .maxQuantity(dto.getMaxQuantity())
                 .build();
     }
 
     @Override
     public StatusDiscountDto mapToDto(StatusDiscount entity) {
         return StatusDiscountDto.builder()
-                .discountStatus(entity.getStatus())
+                .discountStatus(entity.getDiscountStatus())
                 .discount(entity.getDiscount())
+                .minQuantity(entity.getMinQuantity())
+                .maxQuantity(entity.getMaxQuantity())
                 .build();
     }
 }
