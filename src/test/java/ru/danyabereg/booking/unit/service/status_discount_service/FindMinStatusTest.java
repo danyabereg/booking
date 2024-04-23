@@ -12,14 +12,13 @@ import ru.danyabereg.booking.model.entity.StatusDiscount;
 import ru.danyabereg.booking.model.repository.StatusDiscountRepository;
 import ru.danyabereg.booking.service.StatusDiscountService;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
-public class FindByStatusTest {
+public class FindMinStatusTest {
     @Spy
     private StatusDiscountMapper statusDiscountMapper;
     @Mock
@@ -28,27 +27,22 @@ public class FindByStatusTest {
     private StatusDiscountService statusDiscountService;
 
     private static final StatusDiscountDto STATUS_DISCOUNT_DTO = new StatusDiscountDto(
-            "SILVER", 7, 10, 19);
+            "BRONZE", 5, 0, 9);
     private static final StatusDiscount STATUS_DISCOUNT = new StatusDiscount(
-            "SILVER", 7, 10, 19);
+            "BRONZE", 5, 0, 9);
 
     @Test
-    void findByStatusTest() {
+    void findMinStatusTest() {
         Mockito.doReturn(Optional.of(STATUS_DISCOUNT))
-                .when(statusDiscountRepository).findByDiscountStatus(STATUS_DISCOUNT.getDiscountStatus());
+                .when(statusDiscountRepository).findMinDiscountStatus();
 
-        StatusDiscountDto actualResult = statusDiscountService
-                .findByStatus(STATUS_DISCOUNT.getDiscountStatus());
+        Mockito.doReturn(STATUS_DISCOUNT_DTO)
+                .when(statusDiscountMapper).mapToDto(STATUS_DISCOUNT);
+
+        var actualResult = statusDiscountService.findMinStatus();
 
         assertEquals(actualResult, STATUS_DISCOUNT_DTO);
-    }
-
-    @Test
-    void findByStatusThrowsTest() {
-        Mockito.doReturn(Optional.empty())
-                .when(statusDiscountRepository).findByDiscountStatus(STATUS_DISCOUNT.getDiscountStatus());
-
-        assertThrows(NoSuchElementException.class, () ->
-                statusDiscountService.findByStatus(STATUS_DISCOUNT.getDiscountStatus()));
+        verify(statusDiscountRepository).findMinDiscountStatus();
+        verify(statusDiscountMapper).mapToDto(STATUS_DISCOUNT);
     }
 }

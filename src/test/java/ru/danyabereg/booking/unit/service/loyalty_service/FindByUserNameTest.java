@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.danyabereg.booking.mapper.LoyaltyMapper;
 import ru.danyabereg.booking.model.dto.LoyaltyDto;
 import ru.danyabereg.booking.model.dto.StatusDiscountDto;
-import ru.danyabereg.booking.model.entity.DiscountStatus;
 import ru.danyabereg.booking.model.entity.Loyalty;
 import ru.danyabereg.booking.model.entity.StatusDiscount;
 import ru.danyabereg.booking.model.repository.LoyaltyRepository;
@@ -30,11 +29,11 @@ public class FindByUserNameTest {
     private LoyaltyService loyaltyService;
 
     private static final StatusDiscountDto STATUS_DISCOUNT_DTO = new StatusDiscountDto(
-            DiscountStatus.BRONZE, 5);
+            "BRONZE", 5, 0, 9);
     private static final LoyaltyDto LOYALTY_DTO = new LoyaltyDto(
             "test", 1, STATUS_DISCOUNT_DTO);
     private static final StatusDiscount STATUS_DISCOUNT = new StatusDiscount(
-            DiscountStatus.BRONZE, 5);
+            "BRONZE", 5, 0, 9);
     private static final Loyalty LOYALTY = new Loyalty(
             "test", 1, STATUS_DISCOUNT);
 

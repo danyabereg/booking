@@ -7,7 +7,6 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.danyabereg.booking.mapper.StatusDiscountMapper;
-import ru.danyabereg.booking.model.entity.DiscountStatus;
 import ru.danyabereg.booking.model.entity.StatusDiscount;
 import ru.danyabereg.booking.model.repository.StatusDiscountRepository;
 import ru.danyabereg.booking.service.StatusDiscountService;
@@ -28,15 +27,15 @@ public class GetDiscountByDiscountStatusTest {
     private StatusDiscountService statusDiscountService;
 
     private static final StatusDiscount STATUS_DISCOUNT = new StatusDiscount(
-            DiscountStatus.SILVER, 7);
+            "SILVER", 7, 10, 19);
 
     @Test
     void getDiscountByDiscountStatusTest() {
         Mockito.doReturn(Optional.of(STATUS_DISCOUNT))
-                .when(statusDiscountRepository).findByStatus(STATUS_DISCOUNT.getStatus());
+                .when(statusDiscountRepository).findByDiscountStatus(STATUS_DISCOUNT.getDiscountStatus());
 
         Integer actualResult = statusDiscountService
-                .getDiscountByDiscountStatus(STATUS_DISCOUNT.getStatus());
+                .getDiscountByDiscountStatus(STATUS_DISCOUNT.getDiscountStatus());
 
         assertEquals(actualResult, STATUS_DISCOUNT.getDiscount());
     }
@@ -44,9 +43,9 @@ public class GetDiscountByDiscountStatusTest {
     @Test
     void getDiscountByDiscountStatusThrowsTest() {
         Mockito.doReturn(Optional.empty())
-                .when(statusDiscountRepository).findByStatus(STATUS_DISCOUNT.getStatus());
+                .when(statusDiscountRepository).findByDiscountStatus(STATUS_DISCOUNT.getDiscountStatus());
 
         assertThrows(NoSuchElementException.class, () ->
-                statusDiscountService.getDiscountByDiscountStatus(STATUS_DISCOUNT.getStatus()));
+                statusDiscountService.getDiscountByDiscountStatus(STATUS_DISCOUNT.getDiscountStatus()));
     }
 }

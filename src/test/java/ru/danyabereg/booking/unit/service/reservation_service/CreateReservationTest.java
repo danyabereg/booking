@@ -29,7 +29,6 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.AssertionErrors.assertNull;
-import static ru.danyabereg.booking.model.entity.DiscountStatus.BRONZE;
 import static ru.danyabereg.booking.model.entity.ReservationStatus.SUCCESS;
 
 @SpringBootTest
@@ -58,23 +57,23 @@ public class CreateReservationTest {
     private static final Hotel HOTEL = new Hotel(
             HOTEL_ID, "test", "test", BigDecimal.TEN);
     private static final StatusDiscountDto STATUS_DISCOUNT_DTO = new StatusDiscountDto(
-            BRONZE, 5);
+            "BRONZE", 5, 0, 9);
     private static final StatusDiscount STATUS_DISCOUNT = new StatusDiscount(
-            BRONZE, 5);
+            "BRONZE", 5, 0, 9);
     private static final LoyaltyDto LOYALTY_DTO = new LoyaltyDto(
             "test", 1, STATUS_DISCOUNT_DTO);
     private static final Loyalty LOYALTY = new Loyalty(
             "test", 1, STATUS_DISCOUNT);
     private static final Reservation RESERVATION = new Reservation(
             RESERVATION_ID, LOYALTY, HOTEL, SUCCESS, REQUEST_DTO.getStartDate(),
-            REQUEST_DTO.getEndDate(), LOYALTY.getStatus().getStatus(),
+            REQUEST_DTO.getEndDate(), LOYALTY.getStatus().getDiscountStatus(),
             HOTEL.getPrice()
                     .multiply(BigDecimal.valueOf(1.0 - 0.01 * LOYALTY.getStatus().getDiscount()))
                     .multiply(BigDecimal.valueOf(ChronoUnit.DAYS.between(REQUEST_DTO.getStartDate(), REQUEST_DTO.getEndDate()))),
             LocalDate.now());
     private static final ReservationDto RESERVATION_DTO = new ReservationDto(
             RESERVATION_ID, LOYALTY_DTO, HOTEL_DTO, SUCCESS, REQUEST_DTO.getStartDate(),
-            REQUEST_DTO.getEndDate(), LOYALTY.getStatus().getStatus(),
+            REQUEST_DTO.getEndDate(), LOYALTY.getStatus().getDiscountStatus(),
             HOTEL.getPrice()
                     .multiply(BigDecimal.valueOf(1.0 - 0.01 * LOYALTY.getStatus().getDiscount()))
                     .multiply(BigDecimal.valueOf(ChronoUnit.DAYS.between(REQUEST_DTO.getStartDate(), REQUEST_DTO.getEndDate()))),
@@ -88,7 +87,7 @@ public class CreateReservationTest {
                 .status(SUCCESS)
                 .dateFrom(REQUEST_DTO.getStartDate())
                 .dateTo(REQUEST_DTO.getEndDate())
-                .userStatus(LOYALTY.getStatus().getStatus())
+                .userStatus(LOYALTY.getStatus().getDiscountStatus())
                 .price(HOTEL.getPrice()
                         .multiply(BigDecimal.valueOf(1.0 - 0.01 * LOYALTY.getStatus().getDiscount()))
                         .multiply(BigDecimal.valueOf(ChronoUnit.DAYS.between(REQUEST_DTO.getStartDate(), REQUEST_DTO.getEndDate()))))
@@ -102,7 +101,7 @@ public class CreateReservationTest {
                 .when(loyaltyService).findByUserCreate("test");
 
         Mockito.doReturn(RESERVATION)
-                .when(reservationRepository).save(reservation);
+                .when(reservationRepository).saveAndFlush(reservation);
 
         Mockito.doReturn(LOYALTY)
                 .when(loyaltyMapper).mapToEntity(LOYALTY_DTO);
@@ -117,7 +116,7 @@ public class CreateReservationTest {
         verify(loyaltyService).findByUserCreate("test");
         verify(loyaltyMapper).mapToEntity(LOYALTY_DTO);
         verify(hotelMapper).mapToEntity(HOTEL_DTO);
-        verify(reservationRepository).save(reservation);
+        verify(reservationRepository).saveAndFlush(reservation);
     }
 
     @Test
@@ -139,7 +138,7 @@ public class CreateReservationTest {
                 .status(SUCCESS)
                 .dateFrom(REQUEST_DTO.getStartDate())
                 .dateTo(REQUEST_DTO.getEndDate())
-                .userStatus(LOYALTY.getStatus().getStatus())
+                .userStatus(LOYALTY.getStatus().getDiscountStatus())
                 .price(HOTEL.getPrice()
                         .multiply(BigDecimal.valueOf(1.0 - 0.01 * LOYALTY.getStatus().getDiscount()))
                         .multiply(BigDecimal.valueOf(ChronoUnit.DAYS.between(REQUEST_DTO.getStartDate(), REQUEST_DTO.getEndDate()))))
@@ -156,7 +155,7 @@ public class CreateReservationTest {
                 .when(loyaltyService).createUser("test");
 
         Mockito.doReturn(RESERVATION)
-                .when(reservationRepository).save(reservation);
+                .when(reservationRepository).saveAndFlush(reservation);
 
         Mockito.doReturn(LOYALTY)
                 .when(loyaltyMapper).mapToEntity(LOYALTY_DTO);
@@ -172,6 +171,6 @@ public class CreateReservationTest {
         verify(loyaltyService).createUser("test");
         verify(loyaltyMapper).mapToEntity(LOYALTY_DTO);
         verify(hotelMapper).mapToEntity(HOTEL_DTO);
-        verify(reservationRepository).save(reservation);
+        verify(reservationRepository).saveAndFlush(reservation);
     }
 }

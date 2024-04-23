@@ -20,11 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class MapToDtoTest {
     private static final UUID RESERVATION_ID = UUID.randomUUID();
     private static final StatusDiscount STATUS_DISCOUNT = new StatusDiscount(
-            DiscountStatus.SILVER, 7);
+            "SILVER", 7, 10, 19);
     private static final Loyalty LOYALTY = new Loyalty(
             "test", 10, STATUS_DISCOUNT);
     private static final StatusDiscountDto STATUS_DISCOUNT_DTO = new StatusDiscountDto(
-            DiscountStatus.SILVER, 7);
+            "SILVER", 7, 10, 19);
     private static final LoyaltyDto LOYALTY_DTO = new LoyaltyDto(
             "test", 10, STATUS_DISCOUNT_DTO);
     private static final UUID HOTEL_ID = UUID.randomUUID();
@@ -35,7 +35,7 @@ public class MapToDtoTest {
     private static final Reservation RESERVATION = new Reservation(
             RESERVATION_ID, LOYALTY, HOTEL, ReservationStatus.SUCCESS,
             LocalDate.now().minusDays(10),
-            LocalDate.now(), STATUS_DISCOUNT.getStatus(), BigDecimal.ONE, LocalDate.now());
+            LocalDate.now(), STATUS_DISCOUNT.getDiscountStatus(), BigDecimal.ONE, LocalDate.now());
     private static final ReservationDto RESERVATION_DTO = new ReservationDto(
             RESERVATION_ID, LOYALTY_DTO, HOTEL_DTO, ReservationStatus.SUCCESS,
             LocalDate.now().minusDays(10),
